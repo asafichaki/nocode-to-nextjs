@@ -6,7 +6,7 @@ For experienced Claude Code users who just want to get going.
 
 ```bash
 # Clone and install the skill
-git clone https://github.com/YOUR_USERNAME/nocode-to-nextjs.git /tmp/nocode-to-nextjs
+git clone https://github.com/asafichaki/nocode-to-nextjs.git /tmp/nocode-to-nextjs
 mkdir -p your-project/.claude/skills
 cp -r /tmp/nocode-to-nextjs/skills/* your-project/.claude/skills/
 cp /tmp/nocode-to-nextjs/CLAUDE.md your-project/.claude/CLAUDE.md

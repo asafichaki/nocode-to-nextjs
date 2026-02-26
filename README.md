@@ -78,7 +78,7 @@ Clone this repo and copy the skill files into your project:
 
 ```bash
 # Clone the migration agent
-git clone https://github.com/YOUR_USERNAME/nocode-to-nextjs.git /tmp/nocode-to-nextjs
+git clone https://github.com/asafichaki/nocode-to-nextjs.git /tmp/nocode-to-nextjs
 
 # Copy into your project's Claude config
 mkdir -p your-project/.claude/skills
@@ -92,7 +92,7 @@ rm -rf /tmp/nocode-to-nextjs
 ### Option B: Add as Global Skill (Available Everywhere)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nocode-to-nextjs.git /tmp/nocode-to-nextjs
+git clone https://github.com/asafichaki/nocode-to-nextjs.git /tmp/nocode-to-nextjs
 
 mkdir -p ~/.claude/skills
 cp -r /tmp/nocode-to-nextjs/skills/* ~/.claude/skills/
