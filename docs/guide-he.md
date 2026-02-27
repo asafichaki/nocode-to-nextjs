@@ -1,285 +1,193 @@
-# מדריך: איך להעביר אפליקציה מ-Lovable / Base44 ל-Next.js עם סוכן AI
+# איך להעביר את האפליקציה שלך מ-Lovable / Base44 לאתר מקצועי
 
-## למי המדריך הזה
+## בשביל מי זה
 
-בנית אפליקציה ב-Lovable או Base44 ועכשיו אתה צריך:
-- SEO אמיתי (שגוגל יראה את התוכן שלך)
-- Server-Side Rendering
-- Metadata לכל עמוד
-- Sitemap ו-robots.txt
-- Auth שעובד בצד שרת
-- Deploy מקצועי ב-Vercel
+בנית אפליקציה או אתר ב-Lovable או Base44. הכל נראה טוב, אבל גוגל לא מוצא אותך, האתר איטי, ואתה מרגיש שזה לא מספיק מקצועי לפרודקשן אמיתי.
 
-המדריך הזה מראה איך לעשות את כל זה עם סוכן AI ב-Claude Code שכתבתי, שעושה את כל העבודה בשבילך.
+הכלי הזה פותר את זה. הוא לוקח את מה שבנית ומעביר את זה לטכנולוגיה מקצועית (Next.js) — בלי שתצטרך לכתוב קוד בעצמך. סוכן AI עושה את העבודה.
+
+---
+
+## מה תקבל בסוף
+
+- גוגל יראה ויאנדקס את כל העמודים שלך
+- כל עמוד יקבל כותרת ותיאור ייחודיים לחיפוש
+- האתר יעלה ב-Vercel (אירוח חינמי ומהיר)
+- מערכת הרשאות מקצועית (אזור אדמין מוגן)
+- הכל ימשיך לעבוד עם Supabase (בסיס הנתונים)
 
 ---
 
 ## מה צריך לפני שמתחילים
 
-### 1. Node.js (גרסה 18 ומעלה)
+### 1. להתקין Node.js
 
-בדוק אם מותקן:
-```bash
+זה כלי בסיסי שצריך כדי שהכל ירוץ. פותחים טרמינל (ב-Mac: חיפוש "Terminal") ומריצים:
+
+```
 node -v
 ```
 
-אם לא, תוריד מפה: https://nodejs.org
+אם יצא מספר גרסה — מעולה, זה מותקן. אם לא, תורידו מפה:
+https://nodejs.org (תבחרו בגרסה LTS)
 
-### 2. חשבון Supabase
+### 2. חשבונות (חינם)
 
-https://supabase.com — הרשמה חינם. אם הפרויקט שלך כבר רץ על Supabase (כמו ב-Lovable), אתה כבר מסודר. אם זה Base44, תצטרך ליצור פרויקט Supabase חדש.
+- **Supabase** — https://supabase.com — אם בניתם ב-Lovable כבר יש לכם. אם בניתם ב-Base44, תצטרכו להירשם.
+- **Vercel** — https://vercel.com — שם האתר יעלה לאוויר. הרשמה חינם.
+- **Anthropic** — https://console.anthropic.com — שם מקבלים מפתח API ל-Claude (יש תקופת ניסיון).
 
-### 3. חשבון Vercel
+### 3. להתקין את Claude Code
 
-https://vercel.com — הרשמה חינם. שם הפרויקט יעלה לפרודקשן.
+Claude Code זה בעצם מתכנת AI שעובד דרך הטרמינל. הוא קורא את הקוד שלכם, מבין מה צריך לעשות, ועושה את זה.
 
-### 4. Claude Code
+פותחים טרמינל ומריצים:
 
-Claude Code זה CLI של Anthropic שנותן ל-Claude לעבוד ישירות בטרמינל שלך — לקרוא קבצים, לערוך קוד, להריץ פקודות. בעצם מתכנת AI שיושב לך בפרויקט.
-
-**התקנה:**
-```bash
+```
 npm install -g @anthropic-ai/claude-code
 ```
 
-**מפתח API:**
+אחרי ההתקנה, צריך להגדיר את המפתח שלכם:
+
 1. נכנסים ל-https://console.anthropic.com
-2. יוצרים חשבון (או נכנסים)
-3. הולכים ל-API Keys ויוצרים מפתח חדש
-4. מגדירים בטרמינל:
-```bash
+2. יוצרים חשבון
+3. הולכים ל-API Keys ויוצרים מפתח
+4. מריצים בטרמינל (תחליפו את your-key-here במפתח שקיבלתם):
+
+```
 export ANTHROPIC_API_KEY=your-key-here
 ```
 
-כדי שזה ישאר גם אחרי סגירת הטרמינל, תוסיף את השורה הזו לקובץ `~/.zshrc` (מק) או `~/.bashrc` (לינוקס):
-```bash
+ב-Mac, כדי שזה ישאר גם אחרי שתסגרו את הטרמינל:
+
+```
 echo 'export ANTHROPIC_API_KEY=your-key-here' >> ~/.zshrc
-source ~/.zshrc
 ```
-
-**בדיקה שזה עובד:**
-```bash
-mkdir test-project && cd test-project
-claude
-```
-
-אם נפתח Claude Code ואתה רואה prompt, הכל עובד. כתוב `exit` לצאת.
 
 ---
 
-## שלב 1: התקנת הסוכן
+## בואו נתחיל
 
-הסוכן הוא אוסף קבצי ידע (skills) שאומרים ל-Claude Code בדיוק איך לעשות את המיגרציה. 2,500 שורות של ידע מוכח.
+### צעד 1: מורידים את הסוכן
 
-**הריפו:** https://github.com/asafichaki/nocode-to-nextjs
+הסוכן הוא "מוח" שמלמד את Claude Code איך לעשות את ההעברה. הורדה פעם אחת ואתם מסודרים.
 
-### אופציה א׳: התקנה לפרויקט ספציפי (מומלץ)
+פותחים טרמינל ומריצים שורה אחרי שורה:
 
-```bash
-# קלונים את הריפו לתיקייה זמנית
+```
 git clone https://github.com/asafichaki/nocode-to-nextjs.git /tmp/nocode-to-nextjs
+```
 
-# נכנסים לפרויקט שלנו
-cd path/to/your-lovable-project
+### צעד 2: מתקינים את הסוכן בפרויקט שלכם
 
-# יוצרים את תיקיית ה-skills
+נכנסים לתיקיית הפרויקט שלכם (תחליפו את הנתיב):
+
+```
+cd path/to/your-project
+```
+
+ואז:
+
+```
 mkdir -p .claude/skills
-
-# מעתיקים את קבצי הידע
 cp -r /tmp/nocode-to-nextjs/skills/* .claude/skills/
 cp /tmp/nocode-to-nextjs/CLAUDE.md .claude/CLAUDE.md
-
-# מנקים
 rm -rf /tmp/nocode-to-nextjs
 ```
 
-### אופציה ב׳: התקנה גלובלית (זמין בכל הפרויקטים)
+זהו. הסוכן מותקן.
 
-```bash
-git clone https://github.com/asafichaki/nocode-to-nextjs.git /tmp/nocode-to-nextjs
+### צעד 3: מפעילים את Claude Code
 
-mkdir -p ~/.claude/skills
-cp -r /tmp/nocode-to-nextjs/skills/* ~/.claude/skills/
-
-rm -rf /tmp/nocode-to-nextjs
-```
-
-### מה הותקן?
+עדיין בתיקיית הפרויקט, מריצים:
 
 ```
-.claude/
-├── CLAUDE.md                           # הוראות לסוכן
-└── skills/
-    ├── migration-skill.md              # ידע ליבה — כל תהליך המיגרציה
-    ├── base44-platform.md              # דברים ספציפיים ל-Base44
-    ├── supabase-troubleshooting.md     # פתרון בעיות Supabase
-    └── deployment-troubleshooting.md   # פתרון בעיות Vercel
-```
-
----
-
-## שלב 2: הכנת הפרויקט
-
-לפני שמריצים את הסוכן, ודא שיש לך:
-
-**אם הפרויקט ב-Lovable:**
-- [ ] הריפו קלון מגיטהאב (Lovable נותן לך גישה לקוד דרך GitHub)
-- [ ] יש לך את ה-Supabase URL ו-Anon Key (נמצאים ב-Settings > API בדשבורד של Supabase)
-
-**אם הפרויקט ב-Base44:**
-- [ ] הפרויקט מיוצא (Base44 נותן לך לייצא את הקוד)
-- [ ] יצרת פרויקט Supabase חדש (כי Base44 משתמש ב-DB פרופריטרי שלו)
-- [ ] יש לך את ה-Supabase URL ו-Anon Key מהפרויקט החדש
-
----
-
-## שלב 3: הרצת המיגרציה
-
-פותחים טרמינל בתיקיית הפרויקט:
-
-```bash
-cd path/to/your-project
 claude
 ```
 
-ואז פשוט אומרים לו מה לעשות:
+ייפתח ממשק של Claude. עכשיו פשוט כותבים לו:
 
+**אם הפרויקט מ-Lovable:**
 ```
 Migrate this Lovable app to Next.js with Supabase and deploy to Vercel
 ```
 
-או בעברית:
-
+**אם הפרויקט מ-Base44:**
 ```
-תעביר את האפליקציה הזו מ-Lovable ל-Next.js עם Supabase ותעלה ל-Vercel
+Migrate this Base44 app to Next.js with Supabase and deploy to Vercel
 ```
 
-### מה הסוכן עושה מפה
+### צעד 4: נותנים לו לעבוד
 
-הסוכן עובד ב-7 שלבים:
+מפה הסוכן עובד לבד. הוא:
 
-**שלב 1 — Discovery:** סורק את הפרויקט, מזהה את כל ה-routes, ה-env vars, וה-Edge Functions.
+1. סורק את הפרויקט ומבין מה יש בו
+2. מתקין את מה שצריך ומסיר את מה שלא
+3. בונה את כל המבנה מחדש בצורה מקצועית
+4. מוסיף SEO לכל עמוד (שגוגל ימצא אותכם)
+5. בונה מערכת הרשאות
+6. מתקן שגיאות (יהיו, זה נורמלי)
+7. מעלה הכל ל-Vercel
 
-**שלב 2 — Setup:** מתקין Next.js, מסיר Vite ו-React Router, יוצר `next.config.ts`, `tsconfig.json`, ומשנה את שמות התיקיות (הדבר הכי חשוב: `src/pages/` הופך ל-`src/views/` כי Next.js משתמש ב-pages בעצמו).
+הוא ישאל אתכם שאלות בדרך. פשוט ענו לו.
 
-**שלב 3 — Core Files:** יוצר את `layout.tsx`, שלושה Supabase clients (אחד לדפדפן, אחד לשרת, אחד ל-build), middleware לאותנטיקציה, ודפי שגיאה.
+**כמה זמן זה לוקח?** בערך חצי יום. תלוי בגודל הפרויקט.
 
-**שלב 4 — Route Migration:** לכל route בפרויקט יוצר wrapper page עם metadata ל-SEO. הקומפוננטות המקוריות נשארות כמו שהן.
+### צעד 5: בדיקה שהכל עובד
 
-**שלב 5 — Import Fixes:** מחליף את כל ה-`import.meta.env.VITE_*` ל-`process.env.NEXT_PUBLIC_*`, מחליף React Router imports ל-Next.js, מתקן paths.
+אחרי שהסוכן סיים, בדקו:
 
-**שלב 6 — SEO:** יוצר `sitemap.ts`, `robots.ts`, קומפוננטות JSON-LD (Organization, Article, FAQ), ומוודא שלכל עמוד יש metadata.
-
-**שלב 7 — Build & Deploy:** מריץ build, מתקן שגיאות, דוחף לגיטהאב, מעלה ל-Vercel, ומגדיר env vars.
-
-### כמה זמן זה לוקח?
-
-| שלב | זמן |
-|------|------|
-| Setup + Core | כשעה וחצי |
-| Routes + Imports | 2-4 שעות (תלוי בגודל האפליקציה) |
-| SEO | שעה-שעתיים |
-| Deploy | חצי שעה |
-| **סה"כ** | **חצי יום בערך** |
+- [ ] נכנסים לכתובת שקיבלתם מ-Vercel — האתר עולה?
+- [ ] מוסיפים `/sitemap.xml` לכתובת — רואים רשימת עמודים?
+- [ ] לוחצים Ctrl+U (או Cmd+U ב-Mac) — רואים HTML מלא ולא עמוד ריק?
+- [ ] כל הדפים שהיו באתר הישן עובדים גם בחדש?
 
 ---
 
-## שלב 4: הגדרת Environment Variables ב-Vercel
+## משהו לא עובד?
 
-אחרי שהסוכן עושה deploy, תצטרך לוודא שה-env vars מוגדרים בדשבורד של Vercel:
+### הסוכן נתקע באמצע
 
-1. נכנסים ל-Vercel Dashboard > הפרויקט שלכם > Settings > Environment Variables
-2. מוסיפים:
-
+תכתבו לו:
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ... (המפתח מ-Supabase)
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+Continue with the migration, read skills/supabase-troubleshooting.md if needed
 ```
 
-3. חשוב: לשים את זה גם ל-Production וגם ל-Preview
-4. עושים Redeploy
+### האתר עלה אבל Supabase לא מתחבר
+
+כנראה צריך להגדיר משתנים ב-Vercel. תכתבו לסוכן:
+```
+The Supabase connection is not working in production. Check the environment variables in Vercel.
+```
+
+### בניתם ב-Base44 ואין לכם Supabase
+
+זה צפוי. ב-Base44 צריך ליצור בסיס נתונים חדש. תכתבו לסוכן:
+```
+This is a Base44 project. Create Supabase tables based on the entities and migrate everything.
+```
+
+### עדיין נתקעתם?
+
+פתחו issue בגיטהאב ואני אעזור:
+https://github.com/asafichaki/nocode-to-nextjs/issues
 
 ---
 
-## שלב 5: בדיקות
+## סיכום — מה עשינו פה
 
-אחרי ה-deploy, תבדקו:
-
-**SEO:**
-- [ ] פתחו `https://your-domain.com/sitemap.xml` — צריך להיות רשימה של כל העמודים
-- [ ] פתחו `https://your-domain.com/robots.txt` — צריך לחסום `/admin/` ולאפשר את השאר
-- [ ] עשו View Source על העמוד הראשי — צריך לראות HTML מלא (לא עמוד ריק עם JS)
-- [ ] בדקו שלכל עמוד יש title ו-description ייחודיים
-
-**Auth:**
-- [ ] נסו להיכנס ל-`/admin` בלי להתחבר — צריך לעשות redirect ל-login
-- [ ] התחברו ותבדקו שהסשן נשמר בין עמודים
-
-**כללי:**
-- [ ] כל ה-routes עובדים
-- [ ] תמונות נטענות
-- [ ] טפסים שולחים נתונים
+| לפני | אחרי |
+|-------|-------|
+| גוגל לא רואה את האתר | גוגל רואה ומאנדקס הכל |
+| אין כותרות ותיאורים לחיפוש | כל עמוד עם כותרת ותיאור |
+| אין מפת אתר | מפת אתר אוטומטית |
+| הכל רץ בדפדפן בלבד | רץ גם בשרת (מהיר יותר) |
+| בסיס נתונים אחד פשוט | 3 חיבורים מותאמים |
+| אזור אדמין בסיסי | אזור אדמין מוגן עם הרשאות |
+| אירוח ב-Lovable/Base44 | אירוח מקצועי ב-Vercel |
 
 ---
-
-## בעיות נפוצות ופתרונות
-
-### "אני מקבל שגיאות build בלי סוף"
-
-זה נורמלי. הסוכן יודע לטפל בזה. הבעיות הנפוצות ביותר:
-- חסר `'use client'` בקבצים שמשתמשים ב-hooks
-- `import.meta.env` במקום `process.env`
-- Tailwind v3 שמתנגש עם v4 (הסוכן יודע לעשות downgrade)
-
-אם הסוכן נתקע, תגידו לו:
-```
-Read skills/supabase-troubleshooting.md and fix the build errors
-```
-
-### "Supabase לא עובד בפרודקשן"
-
-ב-99% מהמקרים זה env vars. תוודאו שהם מוגדרים ב-Vercel (ראו שלב 4).
-
-### "Edge Functions מחזירות CORS error"
-
-אחרי ה-deploy, הדומיין החדש צריך להיות ברשימת ה-CORS של ה-Edge Functions. הסוכן בדרך כלל מטפל בזה, אבל אם לא:
-```
-Fix the CORS headers in the Edge Functions to allow the new Vercel domain
-```
-
-### "Base44 — אין לי Supabase"
-
-זה ההבדל הגדול מ-Lovable. ב-Base44 צריך ליצור פרויקט Supabase חדש, לבנות טבלאות, ולהעביר נתונים. הסוכן יודע לעשות את זה, אבל זה לוקח יותר זמן. תגידו לו:
-```
-This is a Base44 project. I need you to create the Supabase tables based on the entities and migrate the SDK calls.
-```
-
----
-
-## מה הסוכן יודע לעשות (הרשימה המלאה)
-
-| יכולת | פירוט |
-|--------|--------|
-| זיהוי פלטפורמה | מזהה אוטומטית אם זה Lovable או Base44 |
-| המרת Router | React Router v6 → Next.js App Router |
-| Supabase 3-Client | browser client, server client, static client |
-| SEO מלא | metadata, sitemap.ts, robots.ts, JSON-LD |
-| Auth | middleware עם cookies, login page עם Server Actions |
-| Component Migration | הוספת 'use client', תיקון imports |
-| Error Handling | error.tsx, global-error.tsx, not-found.tsx |
-| API Routes | lead submission, auth callback, ISR revalidation |
-| Tailwind | זיהוי ותיקון קונפליקט v3/v4 |
-| Deploy | Vercel עם env vars |
-| Base44 SDK | החלפת @base44/sdk ב-Supabase client |
-| Troubleshooting | 20+ בעיות נפוצות עם פתרונות |
-
----
-
-## איך לתרום
-
-הריפו פתוח ב-MIT license. אם רוצים להוסיף תמיכה בפלטפורמה נוספת (Bolt, V0, Webflow), יש `CONTRIBUTING.md` עם הוראות מלאות.
 
 **הריפו:** https://github.com/asafichaki/nocode-to-nextjs
 
-תנו star אם זה עזר לכם.
+עזר לכם? תנו כוכב בגיטהאב. נתקעתם? שלחו הודעה.
